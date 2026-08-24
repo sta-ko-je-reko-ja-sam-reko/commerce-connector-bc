@@ -11,7 +11,7 @@ query 57110 "CMC API Item Delta"
     EntityName = 'itemDelta';
     EntitySetName = 'itemDelta';
     Caption = 'Commerce Item Delta';
-    OrderBy = ascending(changedAt), ascending(systemId);
+    OrderBy = ascending(changedAt), ascending(number);
 
     elements
     {

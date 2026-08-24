@@ -74,7 +74,11 @@ Interfaces carry no object ID: `CMC ICommerceSetup`, `CMC IOrderStaging`, `CMC I
 
 ## Design decisions worth knowing
 
-**The cursor lives in the integration layer, not in AL.** The delta feed is an API query ordered by `(changedAt, systemId)`. The caller filters on `changedAt` at or after its watermark and re-reads the boundary timestamp on each run; the overlap is harmless because the projection upserts idempotently. This is at-least-once delivery with idempotent application — simpler and more robust than an exactly-once cursor, and it keeps the Business Central side a plain indexed read. The opaque cursor in the platform contract is synthesised by the integration layer from the timestamp and last system id.
+**The cursor lives in the integration layer, not in AL.** The delta feed is an API query ordered by `(changedAt, number)`. Paging state has no business inside a transactional system, so the connector exposes an indexed, deterministically ordered read and nothing more; the integration layer builds the keyset predicate over it and synthesises the opaque cursor the platform contract exposes.
+
+**That ordering is load-bearing, not cosmetic.** The caller resumes with `changedAt gt T or (changedAt eq T and number gt N)`. Ordering by anything else makes that predicate either a table scan or wrong. Two simpler resume conditions both fail silently: `changedAt gt T` skips every row sharing the boundary timestamp with the last row of the previous page, and `changedAt ge T` stalls the feed permanently once more rows share a timestamp than fit in a page — routine when a bulk price update touches more than a page of items at once.
+
+**The tie-break column is the item number, not the system id.** Keyset paging is correct only when the server's ordering and its `gt` comparison agree. That holds dependably for a string key; it does not for a GUID, whose `uniqueidentifier` sort order in SQL Server does not match the order its textual form suggests. The reasoning is written up in `commerce-integration/docs/catalogue-paging.md`.
 
 **The item-to-category join is a query object, not a record loop.** Reading the category for each item through a nested `Get` would be one round trip per item across tens of thousands of rows. `CMC API Item Delta` is a single left outer join.
 
