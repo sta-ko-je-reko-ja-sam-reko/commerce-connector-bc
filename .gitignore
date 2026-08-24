@@ -9,3 +9,6 @@ rad.json
 *.g.xlf
 .DS_Store
 Thumbs.db
+.output/
+.packages/
+.buildartifacts/

@@ -49,6 +49,8 @@ const failures = [];
 const fail = (file, rule, message) => failures.push(`${relative(repoRoot, file)}: [${rule}] ${message}`);
 
 const idsSeen = new Map();
+const declaringNamespace = new Map();
+const fileFacts = new Map();
 const declaredObjects = new Set();
 const referencedObjects = new Map();
 const files = walk(srcRoot);
@@ -97,6 +99,12 @@ for (const file of files) {
   }
   const [, type, id, objectName] = match;
   declaredObjects.add(objectName);
+  declaringNamespace.set(objectName, lines[0].replace(/^namespace\s+|;\s*$/g, '').trim());
+  fileFacts.set(file, {
+    namespace: lines[0].replace(/^namespace\s+|;\s*$/g, '').trim(),
+    usings: new Set(usings.map((u) => u.replace(/^using\s+|;\s*$/g, '').trim())),
+    references: new Set([...source.matchAll(/"((?:CMC) [^"]+)"/g)].map((m) => m[1])),
+  });
 
   if (!affixes.some((affix) => objectName.startsWith(`${affix} `))) {
     fail(file, 'affix', `object name "${objectName}" does not start with a mandatory affix`);
@@ -137,6 +145,27 @@ for (const file of files) {
 for (const [reference, file] of referencedObjects) {
   if (!declaredObjects.has(reference)) {
     fail(file, 'unresolved', `references "${reference}", which no file in this app declares`);
+  }
+}
+
+/*
+ * A missing `using` for one of our own namespaces.
+ *
+ * The moment a file declares a namespace it loses the global lookup, so a reference to
+ * an object in a sibling feature needs an explicit `using` or it will not resolve. The
+ * compiler reports this as AL0185 with no file name attached, which makes it tedious to
+ * locate in a large app -- so it is worth catching here, where the file is known.
+ *
+ * Only our own objects are checked. Microsoft namespaces cannot be resolved without
+ * symbols, and guessing at them would produce false failures.
+ */
+for (const [file, facts] of fileFacts) {
+  for (const reference of facts.references) {
+    const owner = declaringNamespace.get(reference);
+    if (!owner || owner === facts.namespace) continue;
+    if (!facts.usings.has(owner)) {
+      fail(file, 'AL0185', `references "${reference}" from ${owner} without "using ${owner};"`);
+    }
   }
 }
 

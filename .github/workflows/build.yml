@@ -1,0 +1,77 @@
+name: Build
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  compile:
+    name: Compile AL
+    runs-on: windows-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read target application version from app.json
+        id: manifest
+        shell: pwsh
+        run: |
+          $app = Get-Content app/app.json -Raw | ConvertFrom-Json
+          $version = ([version]$app.application)
+          "majorMinor=$($version.Major).$($version.Minor)" >> $env:GITHUB_OUTPUT
+          Write-Host "app.json targets application $($app.application), runtime $($app.runtime)"
+
+      - name: Install BcContainerHelper
+        shell: pwsh
+        run: |
+          Install-Module BcContainerHelper -Force -AllowClobber -Scope CurrentUser
+          Import-Module BcContainerHelper -DisableNameChecking
+          Write-Host "BcContainerHelper $((Get-Module BcContainerHelper).Version)"
+
+      # Compiler-folder mode downloads the AL compiler and platform symbols from the
+      # published artifacts and compiles without a container. GitHub-hosted Windows
+      # runners cannot run Windows containers, so this is the only route to a real
+      # compile here.
+      - name: Compile
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Import-Module BcContainerHelper -DisableNameChecking
+
+          $artifactUrl = Get-BCArtifactUrl -type sandbox -version '${{ steps.manifest.outputs.majorMinor }}' -country w1 -select Latest
+          if (-not $artifactUrl) { throw "No artifact found for application version ${{ steps.manifest.outputs.majorMinor }}" }
+          Write-Host "Artifact: $artifactUrl"
+
+          Run-AlPipeline `
+            -pipelineName 'commerce-connector' `
+            -baseFolder $PWD `
+            -artifact $artifactUrl `
+            -useCompilerFolder `
+            -appFolders @('app') `
+            -testFolders @() `
+            -doNotPublishApp `
+            -doNotRunTests `
+            -failOn 'error'
+
+      - name: Publish the built app
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: commerce-connector-app
+          path: .output/*.app
+          # .output is a dot-directory, and upload-artifact treats hidden paths as
+          # excluded unless told otherwise.
+          include-hidden-files: true
+          # error, not warn: an earlier run uploaded nothing and still went green,
+          # which is exactly the kind of silence a build gate should not produce.
+          if-no-files-found: error

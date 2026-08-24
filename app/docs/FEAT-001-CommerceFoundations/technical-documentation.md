@@ -97,9 +97,22 @@ Interfaces carry no object ID: `CMC ICommerceSetup`, `CMC IOrderStaging`, `CMC I
 | Base Application | Microsoft | `Item`, `Item Category`, `Item Variant`, `Item Unit of Measure`, `Sales Header`, `Sales Line`, `Customer`, `Ship-to Address`, `Location`, `Unit of Measure`. |
 | System Application | Microsoft | `Job Queue Entry`, `Confirm Management`. |
 
+## Build
+
+Compiled against Business Central **27.0.38460.53907** (sandbox, W1) on every push and pull request, in compiler-folder mode — the AL compiler and platform symbols come from the published artifacts, with no container, because GitHub-hosted Windows runners cannot run Windows containers. The target version is read from `app.json` so the workflow and the manifest cannot drift.
+
+**33 files, zero errors, zero warnings**, with the escalated ruleset in force. The `.app` is published as a build artifact.
+
+Two corrections came out of the first real compile:
+
+- `app.json` named a logo file that did not exist (`AL1001`). Compilation stops at manifest validation before reaching any source, so this masked everything behind it.
+- `CMC IPriceResolver` took an `Enum "CMC Price Source"` parameter without importing the namespace that declares it (`AL0185`). Once a file declares a namespace the global lookup is gone, so a sibling-feature reference needs an explicit `using`.
+
+The convention gate now catches the second class of error itself, naming the file — which the compiler does not — and in seconds rather than after a six-minute artifact download.
+
 ## Known Limitations
 
 - **Pricing and availability are contracts only.** `CMC IPriceResolver` and `CMC IAvailability` are defined; default implementations over the Price List model and the availability calculation are the next slice. Until they exist the platform falls back to list price and the projected stock band, which ADR 0004 in `commerce-platform` already specifies as a degraded mode.
 - **Credit standing is not yet exposed.** Checkout blocks without it, by the same ADR.
 - **No stock feed yet.** The band is currently derived by the platform from projected data rather than published by Business Central.
-- **Not compiled.** These objects were authored against the AL language rules and checked statically for affix, ID range and uniqueness, object-name length caps, file naming (AA0215 / LC0015), namespace-first-line, `using` sort order (AA0477) and internal reference resolution. They have **not** been built against symbols. `AL: Download Symbols` and a first compile are the immediate next step; field names on standard tables are the most likely place a correction will be needed.
+- **Test project is a stub.** `test/` carries an `AppSourceCop.json` so file-name analysis behaves, but has no `app.json` and no test codeunits. The build compiles `app/` only. Unit tests over the interfaces — injecting a fake through `Define()` so no database writes occur — are the next slice alongside the pricing implementation.

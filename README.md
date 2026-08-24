@@ -35,7 +35,9 @@ Companion to [commerce-platform](https://github.com/sta-ko-je-reko-ja-sam-reko/c
 
 ## Build
 
-Built with the AL Language extension and **AL-Go for GitHub** — build, version stamping and artefact publishing run in CI.
+Compiled in CI against Business Central 27 on every push and pull request, using BcContainerHelper in compiler-folder mode: the AL compiler and platform symbols come from the published artifacts, with no container. 33 files, zero errors, zero warnings under the escalated ruleset. The `.app` is published as a build artifact.
+
+A second job runs a convention gate — affix, object id range and uniqueness, name length caps, file naming, sorted `using` statements, missing imports for our own namespaces, no inline comments — in seconds, before the artifact download the real compile needs.
 
 ## Layout
 
@@ -58,7 +60,7 @@ test/
 
 First slice implemented: setup, catalogue delta, category API, order staging and intake, change outbox, service locator, install and permission sets. Pricing, availability and credit are defined as interfaces and implemented next.
 
-Not yet compiled against symbols — see *Known Limitations* in the feature documentation.
+Compiles clean. Remaining gaps are listed under *Known Limitations* in the feature documentation.
 
 ## Licence
 

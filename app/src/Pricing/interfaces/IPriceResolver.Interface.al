@@ -1,5 +1,7 @@
 namespace CommerceConnector.Pricing;
 
+using CommerceConnector.General;
+
 interface "CMC IPriceResolver"
 {
     Access = Public;
