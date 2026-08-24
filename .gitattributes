@@ -1,0 +1,6 @@
+* text=auto eol=lf
+
+*.al text eol=lf
+*.xlf text eol=lf
+*.png binary
+*.app binary

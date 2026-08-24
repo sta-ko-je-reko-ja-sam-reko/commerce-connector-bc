@@ -13,7 +13,7 @@ Companion to [commerce-platform](https://github.com/sta-ko-je-reko-ja-sam-reko/c
 | Availability | Bound action returning available-to-promise per location and requested date |
 | Credit | Bound action returning credit standing and blocked status as a checkout gate |
 | Order intake | Staging tables plus a Job Queue processor that creates sales quotes and orders idempotently |
-| Events | `[ExternalBusinessEvent]` publishers for catalogue, price, stock, shipment and invoice changes |
+| Events | A transactional change outbox written in the same transaction as the change, collected over its own API |
 | Telemetry | `Session.LogMessage` with correlation IDs flowing through to Application Insights |
 
 ## Design rules
@@ -37,9 +37,28 @@ Companion to [commerce-platform](https://github.com/sta-ko-je-reko-ja-sam-reko/c
 
 Built with the AL Language extension and **AL-Go for GitHub** — build, version stamping and artefact publishing run in CI.
 
+## Layout
+
+```
+app/
+├── app.json, AppSourceCop.json          affix CMC, ID range 57100-57199
+├── docs/FEAT-001-CommerceFoundations/   technical documentation
+└── src/
+    ├── __General/    service locator, install, enums, permission sets
+    ├── Setup/        commerce setup singleton
+    ├── Catalogue/    item delta query, category API
+    ├── Orders/       staging tables, intake, Job Queue, APIs, operator list
+    ├── Events/       change outbox and subscriber proxies
+    ├── Pricing/      contract only, implementation pending
+    └── Availability/ contract only, implementation pending
+test/
+```
+
 ## Status
 
-Early design. Object model and API contracts land before implementation.
+First slice implemented: setup, catalogue delta, category API, order staging and intake, change outbox, service locator, install and permission sets. Pricing, availability and credit are defined as interfaces and implemented next.
+
+Not yet compiled against symbols — see *Known Limitations* in the feature documentation.
 
 ## Licence
 

@@ -1,0 +1,8 @@
+{
+  "al.ruleSetPath": "../.bc-conventions/ruleset.json",
+  "al.codeAnalyzers": ["${CodeCop}", "${UICop}", "${AppSourceCop}", "${PerTenantExtensionCop}"],
+  "al.enableCodeAnalysis": true,
+  "al.packageCachePath": ".alpackages",
+  "editor.formatOnSave": true,
+  "files.eol": "\n"
+}
