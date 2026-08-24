@@ -12,10 +12,8 @@
   "dependencies": [],
   "features": ["NoImplicitWith", "TranslationFile", "NoPromotedActionProperties"],
   "target": "OnPrem",
-  "logo": "img/AppLogo.png",
   "url": "https://github.com/sta-ko-je-reko-ja-sam-reko/commerce-connector-bc",
   "contextSensitiveHelpUrl": "https://github.com/sta-ko-je-reko-ja-sam-reko/commerce-connector-bc",
-  "applicationInsightsConnectionString": "",
   "resourceExposurePolicy": {
     "allowDebugging": true,
     "allowDownloadingSource": true,
