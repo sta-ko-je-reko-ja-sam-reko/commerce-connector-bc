@@ -1,0 +1,24 @@
+{
+  "id": "3f6c1d84-2b7a-4c19-9a35-8e0d5b47c210",
+  "name": "Commerce Connector",
+  "publisher": "sta-ko-je-reko-ja-sam-reko",
+  "brief": "Commerce APIs, business events and integration staging for Business Central.",
+  "description": "Exposes Business Central as a commerce back end: cursor-paged catalogue delta feeds, bulk customer price resolution, available-to-promise, credit standing and idempotent order intake.",
+  "version": "1.0.0.0",
+  "platform": "1.0.0.0",
+  "application": "27.0.0.0",
+  "runtime": "16.0",
+  "idRanges": [{ "from": 57100, "to": 57199 }],
+  "dependencies": [],
+  "features": ["NoImplicitWith", "TranslationFile", "NoPromotedActionProperties"],
+  "target": "OnPrem",
+  "logo": "img/AppLogo.png",
+  "url": "https://github.com/sta-ko-je-reko-ja-sam-reko/commerce-connector-bc",
+  "contextSensitiveHelpUrl": "https://github.com/sta-ko-je-reko-ja-sam-reko/commerce-connector-bc",
+  "applicationInsightsConnectionString": "",
+  "resourceExposurePolicy": {
+    "allowDebugging": true,
+    "allowDownloadingSource": true,
+    "includeSourceInSymbolFile": true
+  }
+}
