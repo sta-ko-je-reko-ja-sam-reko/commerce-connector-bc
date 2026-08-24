@@ -69,6 +69,9 @@ jobs:
         with:
           name: commerce-connector-app
           path: .output/*.app
-          # error, not warn: the first run uploaded nothing and still went green,
+          # .output is a dot-directory, and upload-artifact treats hidden paths as
+          # excluded unless told otherwise.
+          include-hidden-files: true
+          # error, not warn: an earlier run uploaded nothing and still went green,
           # which is exactly the kind of silence a build gate should not produce.
           if-no-files-found: error
