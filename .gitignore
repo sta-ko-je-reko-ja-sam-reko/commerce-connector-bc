@@ -1,0 +1,11 @@
+.alpackages/
+.altemplates/
+.alcache/
+.snapshots/
+.netpackages/
+*.app
+rad.json
+.vscode/launch.json
+*.g.xlf
+.DS_Store
+Thumbs.db
