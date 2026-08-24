@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  conventions:
+    name: AL conventions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: Check AL conventions
+        run: node scripts/check-al-conventions.mjs
+
+  manifest:
+    name: Manifest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: app.json and AppSourceCop.json are well formed and agree
+        run: |
+          python3 - <<'PY'
+          import json, sys
+          app = json.load(open('app/app.json'))
+          cop = json.load(open('app/AppSourceCop.json'))
+          test_cop = json.load(open('test/AppSourceCop.json'))
+          problems = []
+          for field in ('id', 'name', 'publisher', 'version', 'application', 'runtime', 'idRanges'):
+              if not app.get(field):
+                  problems.append(f'app.json is missing {field}')
+          if not cop.get('mandatoryAffixes'):
+              problems.append('AppSourceCop.json declares no mandatoryAffixes')
+          if cop.get('mandatoryAffixes') != test_cop.get('mandatoryAffixes'):
+              problems.append('test/AppSourceCop.json affixes differ from app/AppSourceCop.json; '
+                              'CodeCop reads that file to decide whether a file name may drop the affix')
+          for feature in ('NoImplicitWith', 'TranslationFile'):
+              if feature not in app.get('features', []):
+                  problems.append(f'app.json does not enable {feature}')
+          if problems:
+              print('\n'.join(f'  - {p}' for p in problems)); sys.exit(1)
+          print('Manifest checks passed.')
+          PY
