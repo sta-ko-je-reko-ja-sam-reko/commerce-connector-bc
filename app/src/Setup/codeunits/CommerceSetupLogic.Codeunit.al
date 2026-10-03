@@ -1,6 +1,6 @@
 namespace CommerceConnector.Setup;
 
-codeunit 57101 "CMC Commerce Setup Logic" implements "CMC ICommerceSetup"
+codeunit 70001 "CMC Commerce Setup Logic" implements "CMC ICommerceSetup"
 {
     Access = Public;
 

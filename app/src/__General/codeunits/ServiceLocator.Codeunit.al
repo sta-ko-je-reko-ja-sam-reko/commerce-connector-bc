@@ -3,7 +3,7 @@ namespace CommerceConnector.General;
 using CommerceConnector.Events;
 using CommerceConnector.Orders;
 
-codeunit 57130 "CMC Service Locator"
+codeunit 70030 "CMC Service Locator"
 {
     SingleInstance = true;
     Access = Public;

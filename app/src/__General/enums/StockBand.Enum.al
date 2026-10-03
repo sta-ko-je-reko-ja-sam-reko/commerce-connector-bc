@@ -1,6 +1,6 @@
 namespace CommerceConnector.General;
 
-enum 57163 "CMC Stock Band"
+enum 70063 "CMC Stock Band"
 {
     Extensible = true;
     Caption = 'Stock Band';

@@ -1,6 +1,6 @@
 namespace CommerceConnector.General;
 
-enum 57161 "CMC Commerce Document Type"
+enum 70061 "CMC Commerce Document Type"
 {
     Extensible = true;
     Caption = 'Commerce Document Type';

@@ -2,7 +2,7 @@ namespace CommerceConnector.Catalogue;
 
 using Microsoft.Inventory.Item;
 
-query 57110 "CMC API Item Delta"
+query 70010 "CMC API Item Delta"
 {
     QueryType = API;
     APIPublisher = 'stakojerekojasamreko';

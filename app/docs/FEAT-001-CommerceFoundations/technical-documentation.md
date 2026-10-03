@@ -18,11 +18,11 @@
 
 | # | Field | Type | Notes |
 |---|---|---|---|
-| 57100 | `Primary Key` | `Code[10]` | Commerce Setup. Singleton. Page size and line cap are validated against the published contract limits. |
-| 57110 | `Entry No.` | `Integer` | Order Staging. `Idempotency Key` carries a **unique** key — the duplicate-submission guarantee is a database constraint, not an application check. |
-| 57111 | `Entry No.`, `Line No.` | `Integer` | Order Staging Line. |
-| 57120 | `Entry No.` | `Integer` | Change Outbox. Transactional outbox for catalogue changes. |
-| 57130 | `Line No.` | `Integer` | Price Request Line. `TableType = Temporary` — a call buffer, so no API page and no `tabledata` permission. |
+| 70000 | `Primary Key` | `Code[10]` | Commerce Setup. Singleton. Page size and line cap are validated against the published contract limits. |
+| 70010 | `Entry No.` | `Integer` | Order Staging. `Idempotency Key` carries a **unique** key — the duplicate-submission guarantee is a database constraint, not an application check. |
+| 70011 | `Entry No.`, `Line No.` | `Integer` | Order Staging Line. |
+| 70020 | `Entry No.` | `Integer` | Change Outbox. Transactional outbox for catalogue changes. |
+| 70030 | `Line No.` | `Integer` | Price Request Line. `TableType = Temporary` — a call buffer, so no API page and no `tabledata` permission. |
 
 ### New Fields on Existing Tables
 
@@ -32,33 +32,33 @@ None. The connector adds no fields to standard tables; it reads them and stages 
 
 | Type | ID | Name | Namespace | Purpose |
 |---|---|---|---|---|
-| enum | 57160 | CMC Staging Status | General | Lifecycle of a staged row. |
-| enum | 57161 | CMC Commerce Document Type | General | Order or quote. |
-| enum | 57162 | CMC Price Source | General | Which commercial rule produced a price. |
-| enum | 57163 | CMC Stock Band | General | Band, never a quantity. |
-| table | 57100 | CMC Commerce Setup | Setup | Feed sizes, retry policy, stock threshold. |
-| page | 57100 | CMC Commerce Setup | Setup | Administration card. |
-| codeunit | 57101 | CMC Commerce Setup Logic | Setup | Default `CMC ICommerceSetup` implementation. |
-| query | 57110 | CMC API Item Delta | Catalogue | Item feed joined to category, ordered for cursor paging. |
-| page | 57110 | CMC API Category | Catalogue | The category tree. |
-| table | 57110 | CMC Order Staging | Orders | Submission header. |
-| table | 57111 | CMC Order Staging Line | Orders | Submission lines. |
-| codeunit | 57112 | CMC Order Staging Logic | Orders | Default `CMC IOrderStaging` implementation. |
-| codeunit | 57113 | CMC Order Intake | Orders | Default `CMC IOrderIntake` implementation. |
-| codeunit | 57114 | CMC Order Intake Job | Orders | Job Queue entry point. |
-| page | 57111 | CMC API Order | Orders | Submission header API. |
-| page | 57112 | CMC API Order Line | Orders | Submission line API. |
-| page | 57113 | CMC Order Staging List | Orders | Operator view, with retry. |
-| table | 57120 | CMC Change Outbox | Events | Transactional outbox. |
-| page | 57120 | CMC API Change Outbox | Events | Collection API. |
-| page | 57121 | CMC Change Outbox List | Events | Operator view. |
-| codeunit | 57120 | CMC Commerce Reactions | Events | Default `CMC IReactions` implementation. |
-| codeunit | 57121 | CMC Item Events | Events | Subscriber proxy, one-line delegation only. |
-| table | 57130 | CMC Price Request Line | Pricing | Temporary call buffer. |
-| codeunit | 57130 | CMC Service Locator | General | Resolves swappable implementations. |
-| codeunit | 57131 | CMC Install | General | Creates setup and the Job Queue entry. |
-| permissionset | 57190 | CMC Commerce - Edit | General | Full access. |
-| permissionset | 57191 | CMC Commerce - Read | General | Read-only access. |
+| enum | 70060 | CMC Staging Status | General | Lifecycle of a staged row. |
+| enum | 70061 | CMC Commerce Document Type | General | Order or quote. |
+| enum | 70062 | CMC Price Source | General | Which commercial rule produced a price. |
+| enum | 70063 | CMC Stock Band | General | Band, never a quantity. |
+| table | 70000 | CMC Commerce Setup | Setup | Feed sizes, retry policy, stock threshold. |
+| page | 70000 | CMC Commerce Setup | Setup | Administration card. |
+| codeunit | 70001 | CMC Commerce Setup Logic | Setup | Default `CMC ICommerceSetup` implementation. |
+| query | 70010 | CMC API Item Delta | Catalogue | Item feed joined to category, ordered for cursor paging. |
+| page | 70010 | CMC API Category | Catalogue | The category tree. |
+| table | 70010 | CMC Order Staging | Orders | Submission header. |
+| table | 70011 | CMC Order Staging Line | Orders | Submission lines. |
+| codeunit | 70012 | CMC Order Staging Logic | Orders | Default `CMC IOrderStaging` implementation. |
+| codeunit | 70013 | CMC Order Intake | Orders | Default `CMC IOrderIntake` implementation. |
+| codeunit | 70014 | CMC Order Intake Job | Orders | Job Queue entry point. |
+| page | 70011 | CMC API Order | Orders | Submission header API. |
+| page | 70012 | CMC API Order Line | Orders | Submission line API. |
+| page | 70013 | CMC Order Staging List | Orders | Operator view, with retry. |
+| table | 70020 | CMC Change Outbox | Events | Transactional outbox. |
+| page | 70020 | CMC API Change Outbox | Events | Collection API. |
+| page | 70021 | CMC Change Outbox List | Events | Operator view. |
+| codeunit | 70020 | CMC Commerce Reactions | Events | Default `CMC IReactions` implementation. |
+| codeunit | 70021 | CMC Item Events | Events | Subscriber proxy, one-line delegation only. |
+| table | 70030 | CMC Price Request Line | Pricing | Temporary call buffer. |
+| codeunit | 70030 | CMC Service Locator | General | Resolves swappable implementations. |
+| codeunit | 70031 | CMC Install | General | Creates setup and the Job Queue entry. |
+| permissionset | 70090 | CMC Commerce - Edit | General | Full access. |
+| permissionset | 70091 | CMC Commerce - Read | General | Read-only access. |
 
 Interfaces carry no object ID: `CMC ICommerceSetup`, `CMC IOrderStaging`, `CMC IOrderIntake`, `CMC IReactions`, `CMC IPriceResolver`, `CMC IAvailability`.
 

@@ -4,7 +4,7 @@ using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 
-table 57111 "CMC Order Staging Line"
+table 70011 "CMC Order Staging Line"
 {
     DataClassification = CustomerContent;
     Caption = 'Commerce Order Staging Line';

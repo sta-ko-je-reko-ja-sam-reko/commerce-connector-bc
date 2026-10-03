@@ -12,7 +12,7 @@ description: Author a new AL object in this app to the project standards - names
 ## 2. Name and number it
 
 - Affix `CMC`, then the name. Cap 30 characters — 20 for `permissionset`, `permissionsetextension` and `entitlement`, where the cap is a compiler error rather than a warning. Descriptive wording goes in the `Caption`.
-- Next free id in **57100–57199**. Ids are unique per object type; the convention gate checks this.
+- Next free id in **70000–73999**. Ids are unique per object type; the convention gate checks this.
 - File name is the object name with the affix stripped and separators removed, then `.<Type>.al`. If you abbreviated the object name to fit the cap, the file name uses the **same** abbreviation — mismatching the two is the most common AA0215 trip-up.
 
 ## 3. Namespace it

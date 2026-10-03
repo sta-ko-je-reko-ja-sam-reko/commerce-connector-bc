@@ -2,7 +2,7 @@ namespace CommerceConnector.Catalogue;
 
 using Microsoft.Inventory.Item;
 
-page 57110 "CMC API Category"
+page 70010 "CMC API Category"
 {
     PageType = API;
     APIPublisher = 'stakojerekojasamreko';

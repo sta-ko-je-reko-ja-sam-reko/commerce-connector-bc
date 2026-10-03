@@ -4,7 +4,7 @@ using CommerceConnector.Orders;
 using CommerceConnector.Setup;
 using System.Threading;
 
-codeunit 57131 "CMC Install"
+codeunit 70031 "CMC Install"
 {
     Subtype = Install;
     Access = Internal;

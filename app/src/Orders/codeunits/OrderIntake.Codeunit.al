@@ -4,7 +4,7 @@ using CommerceConnector.General;
 using CommerceConnector.Setup;
 using Microsoft.Sales.Document;
 
-codeunit 57113 "CMC Order Intake" implements "CMC IOrderIntake"
+codeunit 70013 "CMC Order Intake" implements "CMC IOrderIntake"
 {
     Access = Public;
     Permissions = tabledata "CMC Order Staging" = rimd,

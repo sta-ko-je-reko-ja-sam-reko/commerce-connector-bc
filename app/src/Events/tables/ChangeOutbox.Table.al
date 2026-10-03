@@ -2,7 +2,7 @@ namespace CommerceConnector.Events;
 
 using CommerceConnector.General;
 
-table 57120 "CMC Change Outbox"
+table 70020 "CMC Change Outbox"
 {
     DataClassification = CustomerContent;
     Caption = 'Commerce Change Outbox';

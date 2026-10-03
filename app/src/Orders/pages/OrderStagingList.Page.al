@@ -3,7 +3,7 @@ namespace CommerceConnector.Orders;
 using CommerceConnector.General;
 using System.Utilities;
 
-page 57113 "CMC Order Staging List"
+page 70013 "CMC Order Staging List"
 {
     PageType = List;
     ApplicationArea = All;

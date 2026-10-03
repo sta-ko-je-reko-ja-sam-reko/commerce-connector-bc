@@ -1,6 +1,6 @@
 # commerce-connector-bc
 
-AL extension turning Business Central into a commerce back end. Affix `CMC`, object id range **57100–57199**, target application **27.0.0.0**, runtime **16.0**.
+AL extension turning Business Central into a commerce back end. Affix `CMC`, object id range **70000–73999** (a future test app gets **74000–74999**; this is the app's block in the PTE range shared by all the owner's apps, which must install side by side, so never use ids outside it — registry: bc-dev-templates), target application **27.0.0.0**, runtime **16.0**.
 
 ## Orientation
 
