@@ -4,7 +4,7 @@ using CommerceConnector.General;
 using CommerceConnector.Setup;
 using Microsoft.Inventory.Item;
 
-codeunit 57120 "CMC Commerce Reactions" implements "CMC IReactions"
+codeunit 70020 "CMC Commerce Reactions" implements "CMC IReactions"
 {
     Access = Public;
     Permissions = tabledata "CMC Change Outbox" = ri;

@@ -2,7 +2,7 @@ namespace CommerceConnector.Orders;
 
 using CommerceConnector.General;
 
-codeunit 57114 "CMC Order Intake Job"
+codeunit 70014 "CMC Order Intake Job"
 {
     Access = Public;
 

@@ -1,6 +1,6 @@
 namespace CommerceConnector.Events;
 
-page 57120 "CMC API Change Outbox"
+page 70020 "CMC API Change Outbox"
 {
     PageType = API;
     APIPublisher = 'stakojerekojasamreko';

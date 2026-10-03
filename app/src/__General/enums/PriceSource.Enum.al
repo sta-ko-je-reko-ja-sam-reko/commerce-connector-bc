@@ -1,6 +1,6 @@
 namespace CommerceConnector.General;
 
-enum 57162 "CMC Price Source"
+enum 70062 "CMC Price Source"
 {
     Extensible = true;
     Caption = 'Price Source';

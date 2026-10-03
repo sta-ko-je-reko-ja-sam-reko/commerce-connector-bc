@@ -1,6 +1,6 @@
 namespace CommerceConnector.Events;
 
-page 57121 "CMC Change Outbox List"
+page 70021 "CMC Change Outbox List"
 {
     PageType = List;
     ApplicationArea = All;

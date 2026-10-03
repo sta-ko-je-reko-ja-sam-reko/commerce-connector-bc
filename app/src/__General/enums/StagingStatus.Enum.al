@@ -1,6 +1,6 @@
 namespace CommerceConnector.General;
 
-enum 57160 "CMC Staging Status"
+enum 70060 "CMC Staging Status"
 {
     Extensible = true;
     Caption = 'Staging Status';

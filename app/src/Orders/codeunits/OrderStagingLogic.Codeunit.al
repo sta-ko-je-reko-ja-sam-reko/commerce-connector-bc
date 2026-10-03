@@ -1,6 +1,6 @@
 namespace CommerceConnector.Orders;
 
-codeunit 57112 "CMC Order Staging Logic" implements "CMC IOrderStaging"
+codeunit 70012 "CMC Order Staging Logic" implements "CMC IOrderStaging"
 {
     Access = Public;
 

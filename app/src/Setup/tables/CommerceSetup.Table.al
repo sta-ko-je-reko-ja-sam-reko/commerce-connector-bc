@@ -1,6 +1,6 @@
 namespace CommerceConnector.Setup;
 
-table 57100 "CMC Commerce Setup"
+table 70000 "CMC Commerce Setup"
 {
     DataClassification = CustomerContent;
     Caption = 'Commerce Setup';

@@ -43,7 +43,7 @@ A second job runs a convention gate — affix, object id range and uniqueness, n
 
 ```
 app/
-├── app.json, AppSourceCop.json          affix CMC, ID range 57100-57199
+├── app.json, AppSourceCop.json          affix CMC, ID range 70000-73999
 ├── docs/FEAT-001-CommerceFoundations/   technical documentation
 └── src/
     ├── __General/    service locator, install, enums, permission sets

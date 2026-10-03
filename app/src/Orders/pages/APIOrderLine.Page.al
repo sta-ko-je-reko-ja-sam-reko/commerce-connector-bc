@@ -1,6 +1,6 @@
 namespace CommerceConnector.Orders;
 
-page 57112 "CMC API Order Line"
+page 70012 "CMC API Order Line"
 {
     PageType = API;
     APIPublisher = 'stakojerekojasamreko';

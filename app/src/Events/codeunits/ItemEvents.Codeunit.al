@@ -3,7 +3,7 @@ namespace CommerceConnector.Events;
 using CommerceConnector.General;
 using Microsoft.Inventory.Item;
 
-codeunit 57121 "CMC Item Events"
+codeunit 70021 "CMC Item Events"
 {
     SingleInstance = true;
 

@@ -7,7 +7,7 @@ using CommerceConnector.Orders;
 using CommerceConnector.Pricing;
 using CommerceConnector.Setup;
 
-permissionset 57190 "CMC Commerce - Edit"
+permissionset 70090 "CMC Commerce - Edit"
 {
     Assignable = true;
     Caption = 'Commerce Connector - Edit', Locked = true;

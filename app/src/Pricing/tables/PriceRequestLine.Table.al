@@ -3,7 +3,7 @@ namespace CommerceConnector.Pricing;
 using CommerceConnector.General;
 using Microsoft.Inventory.Item;
 
-table 57130 "CMC Price Request Line"
+table 70030 "CMC Price Request Line"
 {
     TableType = Temporary;
     DataClassification = CustomerContent;

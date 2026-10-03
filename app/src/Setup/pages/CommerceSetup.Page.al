@@ -1,6 +1,6 @@
 namespace CommerceConnector.Setup;
 
-page 57100 "CMC Commerce Setup"
+page 70000 "CMC Commerce Setup"
 {
     PageType = Card;
     ApplicationArea = All;
