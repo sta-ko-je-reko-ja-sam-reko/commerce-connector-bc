@@ -125,4 +125,4 @@ Compiling with the AppSourceCop analyzer also required `privacyStatement`, `EULA
 - **Pricing and availability are contracts only.** `CMC IPriceResolver` and `CMC IAvailability` are defined; default implementations over the Price List model and the availability calculation are the next slice. Until they exist the platform falls back to list price and the projected stock band, which ADR 0004 in `commerce-platform` already specifies as a degraded mode.
 - **Credit standing is not yet exposed.** Checkout blocks without it, by the same ADR.
 - **No stock feed yet.** The band is currently derived by the platform from projected data rather than published by Business Central.
-- **Tests do not run in CI.** CI compiles the app only: the test app targets the BC 29 dev container, and running it needs a service tier. `tools/build.ps1` compiles it and `tools/test.ps1` runs it against the container.
+- **Tests do not run in CI.** CI compiles the test app against BC 29, but running it needs a service tier; `tools/test.ps1` runs it against a container.

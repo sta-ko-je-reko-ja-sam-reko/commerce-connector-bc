@@ -7,7 +7,7 @@ Ordered. Each states what "done" means.
 - [x] `test/app.json` — ids 74000–74999, depending on this app plus `Library Assert`, `Any`, `Library Variable Storage`, `Test Runner` and `Application Test Library`.
 - [x] Unit tests with injected fakes for setup, staging, the intake retry and abandon transitions, the Job Queue entry point and the service locator; integration tests for staged order to sales document, the price assertion, the queue, idempotency, the operator list, the change outbox and the item delta query.
 - [x] `tools/build.ps1` (all four analyzers, zero warnings) and `tools/test.ps1` (publish and run in the dev container).
-- [ ] Compile the test app in CI. Against the BC 27 artifacts the dependency `Application Test Library` does not resolve (27 ships it as `Tests-TestLibraries`); it needs a second compile against a 28+ artifact.
+- [x] CI compiles the test app, in a second job against BC 29 (BC 27 ships `Application Test Library` as `Tests-TestLibraries`, so the dependency cannot resolve there).
 - [ ] Run the tests in CI. GitHub-hosted runners cannot host a BC service tier, so this needs a self-hosted runner or a hosted sandbox; until then `tools/test.ps1` is the gate.
 
 ## 2. Stock feed

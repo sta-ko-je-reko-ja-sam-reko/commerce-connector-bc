@@ -20,7 +20,7 @@ powershell -ExecutionPolicy Bypass -File tools\build.ps1            # app + test
 powershell -ExecutionPolicy Bypass -File tools\test.ps1             # publish both to the dev container, run every test
 ```
 
-CI compiles the app against BC 27 artifacts; the test app is compiled by `tools/build.ps1` only, because it targets the BC 29 container, where the Microsoft test library carries the name `Application Test Library` (BC 27 ships it as `Tests-TestLibraries`). `tools/build.ps1` compiles locally against the BC artifact cache with CodeCop, UICop, AppSourceCop and PerTenantExtensionCop, and fails on any warning. `tools/test.ps1` publishes both packages through the dev endpoint of the container and writes `.output/TestResults.xml`. The ruleset path in `app/.vscode/settings.json` and `test/.vscode/settings.json`, and the build script, expect the shared conventions wired in at `.bc-conventions/` (gitignored), which is not vendored here.
+CI compiles the app against its BC 27 target, and in a second job compiles the app and the test app against BC 29, the version the tests run on: the test app depends on `Application Test Library`, which BC 27 ships under its old name `Tests-TestLibraries`. `tools/build.ps1` compiles locally against the BC artifact cache with CodeCop, UICop, AppSourceCop and PerTenantExtensionCop, and fails on any warning. `tools/test.ps1` publishes both packages through the dev endpoint of the container and writes `.output/TestResults.xml`. The ruleset path in `app/.vscode/settings.json` and `test/.vscode/settings.json`, and the build script, expect the shared conventions wired in at `.bc-conventions/` (gitignored), which is not vendored here.
 
 ## Tests
 
