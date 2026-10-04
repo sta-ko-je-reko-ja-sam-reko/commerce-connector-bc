@@ -26,12 +26,11 @@ Two failure shapes seen so far, both worth recognising:
 
 **`AL0185` — a missing `using` for one of our own namespaces.** Reported with no file name attached, which is tedious across 33 files. The convention gate now catches this and names the file, so it should never reach the compiler again.
 
-## Adding the test project
+## The test project
 
-`test/` currently has an `AppSourceCop.json` — carrying the same affixes as `app/`, which CodeCop reads even when the analyzer is off — but no `app.json` and no codeunits. To wire it in:
+`test/` has its own `app.json` (ids 74000–74999) and an `AppSourceCop.json` carrying the same affixes as `app/`, which CodeCop reads even when the analyzer is off. The workflow compiles it in a second job, `compile-tests`, against the BC 29 artifacts (override with the repository variable `TEST_BC_VERSION`): against BC 27 its `Application Test Library` dependency does not resolve, because 27 ships that app as `Tests-TestLibraries`. Tests are not run in CI; that needs a service tier, which compiler-folder mode does not have.
 
-1. Author `test/app.json` with its own id range, depending on this app plus the Microsoft test libraries. Resolve their app ids from the artifact rather than typing them from memory.
-2. In the workflow, change `-testFolders @()` to `-testFolders @('test')` and remove `-doNotRunTests`.
+Locally, `tools/build.ps1` compiles both projects with all four analyzers and fails on any warning, and `tools/test.ps1` publishes them to the dev container and runs the suite.
 
 ## Artifact
 

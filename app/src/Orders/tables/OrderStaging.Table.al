@@ -72,7 +72,7 @@ table 70010 "CMC Order Staging"
         field(17; "Default Unit of Measure"; Code[10])
         {
             Caption = 'Default Unit of Measure';
-            ToolTip = 'Specifies the unit of measure applied to lines that do not carry one.';
+            ToolTip = 'Specifies the unit of measure applied to lines that do not carry one. When both are blank, the line gets the item''s sales unit of measure, or its base unit when no sales unit is set.';
             TableRelation = "Unit of Measure";
         }
         field(30; Status; Enum "CMC Staging Status")

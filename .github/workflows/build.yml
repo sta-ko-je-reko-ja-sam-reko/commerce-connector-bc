@@ -75,3 +75,50 @@ jobs:
           # error, not warn: an earlier run uploaded nothing and still went green,
           # which is exactly the kind of silence a build gate should not produce.
           if-no-files-found: error
+
+  # The test app depends on the Microsoft test library by its BC 28+ name,
+  # Application Test Library, which is what the BC 29 dev container runs. The BC 27
+  # artifacts ship that app as Tests-TestLibraries, so the dependency cannot resolve
+  # there. This job therefore compiles the app and the test app against the BC 29
+  # artifacts the tests actually run on, while the job above keeps proving the app
+  # against its BC 27 target. Running the tests needs a service tier, which
+  # compiler-folder mode does not have; tools/test.ps1 runs them against a container.
+  compile-tests:
+    name: Compile AL tests (BC ${{ vars.TEST_BC_VERSION || '29.0' }})
+    runs-on: windows-latest
+    timeout-minutes: 90
+    env:
+      TEST_BC_VERSION: ${{ vars.TEST_BC_VERSION || '29.0' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install BcContainerHelper
+        shell: pwsh
+        run: |
+          Install-Module BcContainerHelper -Force -AllowClobber -Scope CurrentUser
+          Import-Module BcContainerHelper -DisableNameChecking
+          Write-Host "BcContainerHelper $((Get-Module BcContainerHelper).Version)"
+
+      - name: Compile app and test app
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Import-Module BcContainerHelper -DisableNameChecking
+
+          $artifactUrl = Get-BCArtifactUrl -type sandbox -version $env:TEST_BC_VERSION -country w1 -select Latest
+          if (-not $artifactUrl) { throw "No artifact found for version $env:TEST_BC_VERSION" }
+          Write-Host "Artifact: $artifactUrl"
+
+          Run-AlPipeline `
+            -pipelineName 'commerce-connector-tests' `
+            -baseFolder $PWD `
+            -artifact $artifactUrl `
+            -useCompilerFolder `
+            -appFolders @('app') `
+            -testFolders @('test') `
+            -installTestRunner `
+            -installTestFramework `
+            -installTestLibraries `
+            -doNotPublishApp `
+            -doNotRunTests `
+            -failOn 'error'

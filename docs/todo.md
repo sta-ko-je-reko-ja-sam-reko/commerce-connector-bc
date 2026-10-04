@@ -4,14 +4,11 @@ Ordered. Each states what "done" means.
 
 ## 1. Test app
 
-Nothing is unit-tested yet. The interfaces exist precisely so that they can be, and every day without tests makes the first ones harder to write.
-
-- [ ] `test/app.json` — own id and id range, depending on this app plus the Microsoft test libraries (`Any`, `Library Assert`, `Test Runner`). Resolve their app ids from the artifact rather than typing them from memory.
-- [ ] `test/src/codeunits/OrderIntakeTests.Codeunit.al` — inject a fake `CMC IOrderIntake` through `Define()` and assert the retry and abandon transitions with no database writes.
-- [ ] `test/src/codeunits/CommerceSetupTests.Codeunit.al` — the page-size and line-cap validation boundaries.
-- [ ] Add `-testFolders @('test')` to the build workflow and drop `-doNotRunTests`.
-
-Done when: the build runs tests and fails on a red one.
+- [x] `test/app.json` — ids 74000–74999, depending on this app plus `Library Assert`, `Any`, `Library Variable Storage`, `Test Runner` and `Application Test Library`.
+- [x] Unit tests with injected fakes for setup, staging, the intake retry and abandon transitions, the Job Queue entry point and the service locator; integration tests for staged order to sales document, the price assertion, the queue, idempotency, the operator list, the change outbox and the item delta query.
+- [x] `tools/build.ps1` (all four analyzers, zero warnings) and `tools/test.ps1` (publish and run in the dev container).
+- [x] CI compiles the test app, in a second job against BC 29 (BC 27 ships `Application Test Library` as `Tests-TestLibraries`, so the dependency cannot resolve there).
+- [ ] Run the tests in CI. GitHub-hosted runners cannot host a BC service tier, so this needs a self-hosted runner or a hosted sandbox; until then `tools/test.ps1` is the gate.
 
 ## 2. Stock feed
 

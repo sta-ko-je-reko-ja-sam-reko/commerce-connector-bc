@@ -44,7 +44,7 @@ None. The connector adds no fields to standard tables; it reads them and stages 
 | table | 70010 | CMC Order Staging | Orders | Submission header. |
 | table | 70011 | CMC Order Staging Line | Orders | Submission lines. |
 | codeunit | 70012 | CMC Order Staging Logic | Orders | Default `CMC IOrderStaging` implementation. |
-| codeunit | 70013 | CMC Order Intake | Orders | Default `CMC IOrderIntake` implementation. |
+| codeunit | 70013 | CMC Order Intake | Orders | Default `CMC IOrderIntake` implementation; run with a staged order, it creates that order's sales document. |
 | codeunit | 70014 | CMC Order Intake Job | Orders | Job Queue entry point. |
 | page | 70011 | CMC API Order | Orders | Submission header API. |
 | page | 70012 | CMC API Order Line | Orders | Submission line API. |
@@ -68,7 +68,7 @@ Interfaces carry no object ID: `CMC ICommerceSetup`, `CMC IOrderStaging`, `CMC I
 |---|---|---|
 | Catalogue delta | `query "CMC API Item Delta"` | OData filter on `changedAt`, order by `changedAt,systemId`, `$top`. |
 | Category tree | `page "CMC API Category"` | Read-only, whole tree. |
-| Order submission | `page "CMC API Order"` + `page "CMC API Order Line"` | Header then lines. A duplicate idempotency key fails on the unique index. |
+| Order submission | `page "CMC API Order"` + `page "CMC API Order Line"` | Header then lines. A duplicate idempotency key fails on the unique index. A line without `unitOfMeasureCode` takes the header's `defaultUnitOfMeasure`. |
 | Change collection | `page "CMC API Change Outbox"` | Collected, then marked completed by the caller. |
 | Implementation override | `CMC Service Locator.OnResolveReactions` / `OnResolveOrderIntake` | The only publishers in the app, and only to substitute an implementation. |
 
@@ -110,9 +110,19 @@ Two corrections came out of the first real compile:
 
 The convention gate now catches the second class of error itself, naming the file — which the compiler does not — and in seconds rather than after a six-minute artifact download.
 
+Three more came out of writing the test app:
+
+- **The intake could never succeed on a default server.** Document creation ran inside a `[TryFunction]`, and Business Central's default `DisableWriteInsideTryFunctions = true` turns the first database write in one into an error, which the try function then caught as a failed attempt. `CMC Order Intake` is now run through `Codeunit.Run` with the staged order as its record (`TableNo`, a one-line `OnRun`), which also rolls back a half-created document when a later line fails.
+- **The queue could lose its place.** `ProcessPending` handed its loop variable to `ProcessOne`, which changes `Status` and `Next Retry At` — the very key the loop iterates — so the following `Next()` could skip rows or stop early. Each due row is now processed through a copy.
+- **Temporary records reached the outbox.** Table events fire for temporary records too, so any buffer insert of an `Item` or `Item Category` was recorded as a catalogue change. The reactions now ignore temporary records; `CMC IReactions.OnItemCategoryChanged` takes the record, like `OnItemChanged`, so it can tell.
+
+A fourth gap was fixed afterwards: `Default Unit of Measure` on the staging header was never read, although its ToolTip promised it. A staged line without a unit now gets the header default; when both are blank the sales line keeps the item's sales unit (or base unit), which standard validation of the item number assigns. The field is exposed on `CMC API Order` as `defaultUnitOfMeasure`.
+
+Compiling with the AppSourceCop analyzer also required `privacyStatement`, `EULA`, `help` and `logo` in `app.json`.
+
 ## Known Limitations
 
 - **Pricing and availability are contracts only.** `CMC IPriceResolver` and `CMC IAvailability` are defined; default implementations over the Price List model and the availability calculation are the next slice. Until they exist the platform falls back to list price and the projected stock band, which ADR 0004 in `commerce-platform` already specifies as a degraded mode.
 - **Credit standing is not yet exposed.** Checkout blocks without it, by the same ADR.
 - **No stock feed yet.** The band is currently derived by the platform from projected data rather than published by Business Central.
-- **Test project is a stub.** `test/` carries an `AppSourceCop.json` so file-name analysis behaves, but has no `app.json` and no test codeunits. The build compiles `app/` only. Unit tests over the interfaces — injecting a fake through `Define()` so no database writes occur — are the next slice alongside the pricing implementation.
+- **Tests do not run in CI.** CI compiles the test app against BC 29, but running it needs a service tier; `tools/test.ps1` runs it against a container.

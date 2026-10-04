@@ -11,12 +11,16 @@ codeunit 70020 "CMC Commerce Reactions" implements "CMC IReactions"
 
     procedure OnItemChanged(var Item: Record Item; ChangeType: Text)
     begin
+        if Item.IsTemporary() then
+            exit;
         RecordChange(ItemChangedTopic(), Item.SystemId, Item."No.", ChangeType);
     end;
 
-    procedure OnItemCategoryChanged(CategoryCode: Code[20]; CategoryId: Guid; ChangeType: Text)
+    procedure OnItemCategoryChanged(var ItemCategory: Record "Item Category"; ChangeType: Text)
     begin
-        RecordChange(CategoryChangedTopic(), CategoryId, CategoryCode, ChangeType);
+        if ItemCategory.IsTemporary() then
+            exit;
+        RecordChange(CategoryChangedTopic(), ItemCategory.SystemId, ItemCategory.Code, ChangeType);
     end;
 
     /// <summary>
