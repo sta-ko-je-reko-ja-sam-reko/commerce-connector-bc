@@ -28,7 +28,7 @@ Two failure shapes seen so far, both worth recognising:
 
 ## The test project
 
-`test/` has its own `app.json` (ids 74000–74999) and an `AppSourceCop.json` carrying the same affixes as `app/`, which CodeCop reads even when the analyzer is off. The workflow compiles it with `-testFolders @('test')` and the test toolkit switches, but keeps `-doNotRunTests`: running tests needs a service tier, which compiler-folder mode does not have.
+`test/` has its own `app.json` (ids 74000–74999) and an `AppSourceCop.json` carrying the same affixes as `app/`, which CodeCop reads even when the analyzer is off. The workflow does not compile it yet: against the BC 27 artifacts its `Application Test Library` dependency does not resolve, because 27 ships that app as `Tests-TestLibraries`. Wiring it in needs a second compile against a 28+ artifact, and running tests needs a service tier, which compiler-folder mode does not have.
 
 Locally, `tools/build.ps1` compiles both projects with all four analyzers and fails on any warning, and `tools/test.ps1` publishes them to the dev container and runs the suite.
 

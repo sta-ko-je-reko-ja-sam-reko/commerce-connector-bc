@@ -35,9 +35,9 @@ Companion to [commerce-platform](https://github.com/sta-ko-je-reko-ja-sam-reko/c
 
 ## Build
 
-Compiled in CI against Business Central 27 on every push and pull request, using BcContainerHelper in compiler-folder mode: the AL compiler and platform symbols come from the published artifacts, with no container. The app and its test app compile with zero errors and zero warnings under the escalated ruleset and all four code analyzers. The `.app` packages are published as a build artifact.
+Compiled in CI against Business Central 27 on every push and pull request, using BcContainerHelper in compiler-folder mode: the AL compiler and platform symbols come from the published artifacts, with no container. The app compiles with zero errors and zero warnings under the escalated ruleset. The `.app` is published as a build artifact.
 
-Locally, `tools/build.ps1` compiles both projects against the BC artifact cache and fails on any warning; `tools/test.ps1` publishes them to a BC container and runs the test suite.
+Locally, `tools/build.ps1` compiles the app and the test app with all four code analyzers against the BC artifact cache and fails on any warning; `tools/test.ps1` publishes them to a BC container and runs the test suite.
 
 A second job runs a convention gate — affix, object id range and uniqueness, name length caps, file naming, sorted `using` statements, missing imports for our own namespaces, no inline comments — in seconds, before the artifact download the real compile needs.
 

@@ -41,9 +41,7 @@ jobs:
       # Compiler-folder mode downloads the AL compiler and platform symbols from the
       # published artifacts and compiles without a container. GitHub-hosted Windows
       # runners cannot run Windows containers, so this is the only route to a real
-      # compile here. The test app is compiled too, against the Microsoft test
-      # libraries from the same artifact; running it needs a BC service tier, which
-      # tools/test.ps1 does against a container.
+      # compile here.
       - name: Compile
         shell: pwsh
         run: |
@@ -60,10 +58,7 @@ jobs:
             -artifact $artifactUrl `
             -useCompilerFolder `
             -appFolders @('app') `
-            -testFolders @('test') `
-            -installTestRunner `
-            -installTestFramework `
-            -installTestLibraries `
+            -testFolders @() `
             -doNotPublishApp `
             -doNotRunTests `
             -failOn 'error'
