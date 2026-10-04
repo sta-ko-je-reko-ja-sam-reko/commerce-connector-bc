@@ -35,7 +35,9 @@ Companion to [commerce-platform](https://github.com/sta-ko-je-reko-ja-sam-reko/c
 
 ## Build
 
-Compiled in CI against Business Central 27 on every push and pull request, using BcContainerHelper in compiler-folder mode: the AL compiler and platform symbols come from the published artifacts, with no container. 33 files, zero errors, zero warnings under the escalated ruleset. The `.app` is published as a build artifact.
+Compiled in CI against Business Central 27 on every push and pull request, using BcContainerHelper in compiler-folder mode: the AL compiler and platform symbols come from the published artifacts, with no container. The app and its test app compile with zero errors and zero warnings under the escalated ruleset and all four code analyzers. The `.app` packages are published as a build artifact.
+
+Locally, `tools/build.ps1` compiles both projects against the BC artifact cache and fails on any warning; `tools/test.ps1` publishes them to a BC container and runs the test suite.
 
 A second job runs a convention gate — affix, object id range and uniqueness, name length caps, file naming, sorted `using` statements, missing imports for our own namespaces, no inline comments — in seconds, before the artifact download the real compile needs.
 
@@ -53,14 +55,15 @@ app/
     ├── Events/       change outbox and subscriber proxies
     ├── Pricing/      contract only, implementation pending
     └── Availability/ contract only, implementation pending
-test/
+test/                 unit tests with injected fakes, integration tests over the base application
+tools/                build.ps1 and test.ps1
 ```
 
 ## Status
 
 First slice implemented: setup, catalogue delta, category API, order staging and intake, change outbox, service locator, install and permission sets. Pricing, availability and credit are defined as interfaces and implemented next.
 
-Compiles clean. Remaining gaps are listed under *Known Limitations* in the feature documentation.
+Compiles clean, with unit and integration tests in `test/`. Remaining gaps are listed under *Known Limitations* in the feature documentation.
 
 ## Licence
 

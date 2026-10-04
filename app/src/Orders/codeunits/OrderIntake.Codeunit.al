@@ -7,6 +7,7 @@ using Microsoft.Sales.Document;
 codeunit 70013 "CMC Order Intake" implements "CMC IOrderIntake"
 {
     Access = Public;
+    TableNo = "CMC Order Staging";
     Permissions = tabledata "CMC Order Staging" = rimd,
                   tabledata "CMC Order Staging Line" = r;
 
@@ -14,6 +15,11 @@ codeunit 70013 "CMC Order Intake" implements "CMC IOrderIntake"
         PriceMismatchErr: Label 'Line %1 was submitted at %2 but Business Central resolved %3. The submission is rejected rather than repriced.', Comment = '%1 = line reference, %2 = submitted price, %3 = resolved price';
         NoLinesErr: Label 'Staged order %1 carries no lines.', Comment = '%1 = platform order id';
         AbandonedTxt: Label 'Abandoned after %1 attempts. Last error: %2', Comment = '%1 = attempt count, %2 = last error text';
+
+    trigger OnRun()
+    begin
+        CreateDocument(Rec);
+    end;
 
     /// <summary>
     /// Processes staged orders that are due, up to the supplied batch size.
@@ -23,6 +29,7 @@ codeunit 70013 "CMC Order Intake" implements "CMC IOrderIntake"
     procedure ProcessPending(BatchSize: Integer): Integer
     var
         OrderStaging: Record "CMC Order Staging";
+        DueOrderStaging: Record "CMC Order Staging";
         Succeeded: Integer;
         Attempted: Integer;
     begin
@@ -33,7 +40,8 @@ codeunit 70013 "CMC Order Intake" implements "CMC IOrderIntake"
         if OrderStaging.FindSet() then
             repeat
                 Attempted += 1;
-                if ProcessOne(OrderStaging) then
+                DueOrderStaging := OrderStaging;
+                if ProcessOne(DueOrderStaging) then
                     Succeeded += 1;
             until (OrderStaging.Next() = 0) or ((BatchSize > 0) and (Attempted >= BatchSize));
 
@@ -46,8 +54,6 @@ codeunit 70013 "CMC Order Intake" implements "CMC IOrderIntake"
     /// <param name="OrderStaging">The staged order to process. Updated in place with the result.</param>
     /// <returns>True when a sales document was created.</returns>
     procedure ProcessOne(var OrderStaging: Record "CMC Order Staging"): Boolean
-    var
-        CreatedDocumentNo: Code[20];
     begin
         OrderStaging.Status := OrderStaging.Status::Processing;
         OrderStaging.Attempts += 1;
@@ -55,12 +61,11 @@ codeunit 70013 "CMC Order Intake" implements "CMC IOrderIntake"
         Commit();
 
         ClearLastError();
-        if not TryCreateDocument(OrderStaging, CreatedDocumentNo) then begin
+        if not Codeunit.Run(Codeunit::"CMC Order Intake", OrderStaging) then begin
             MarkFailed(OrderStaging, GetLastErrorText());
             exit(false);
         end;
 
-        OrderStaging."Created Document No." := CreatedDocumentNo;
         OrderStaging.Status := OrderStaging.Status::Completed;
         OrderStaging."Completed At" := CurrentDateTime();
         OrderStaging."Last Error" := '';
@@ -94,14 +99,13 @@ codeunit 70013 "CMC Order Intake" implements "CMC IOrderIntake"
         Commit();
     end;
 
-    [TryFunction]
-    local procedure TryCreateDocument(var OrderStaging: Record "CMC Order Staging"; var CreatedDocumentNo: Code[20])
+    local procedure CreateDocument(var OrderStaging: Record "CMC Order Staging")
     var
         SalesHeader: Record "Sales Header";
     begin
         CreateHeader(OrderStaging, SalesHeader);
         CreateLines(OrderStaging, SalesHeader);
-        CreatedDocumentNo := SalesHeader."No.";
+        OrderStaging."Created Document No." := SalesHeader."No.";
     end;
 
     local procedure CreateHeader(var OrderStaging: Record "CMC Order Staging"; var SalesHeader: Record "Sales Header")

@@ -5,12 +5,25 @@
   "brief": "Commerce APIs, business events and integration staging for Business Central.",
   "description": "Exposes Business Central as a commerce back end: cursor-paged catalogue delta feeds, bulk customer price resolution, available-to-promise, credit standing and idempotent order intake.",
   "version": "1.0.0.0",
+  "privacyStatement": "https://github.com/sta-ko-je-reko-ja-sam-reko/commerce-connector-bc/blob/main/app/docs/privacy.md",
+  "EULA": "https://github.com/sta-ko-je-reko-ja-sam-reko/commerce-connector-bc/blob/main/LICENSE",
+  "help": "https://github.com/sta-ko-je-reko-ja-sam-reko/commerce-connector-bc",
+  "logo": "img/AppLogo.png",
   "platform": "1.0.0.0",
   "application": "27.0.0.0",
   "runtime": "16.0",
-  "idRanges": [{ "from": 70000, "to": 73999 }],
+  "idRanges": [
+    {
+      "from": 70000,
+      "to": 73999
+    }
+  ],
   "dependencies": [],
-  "features": ["NoImplicitWith", "TranslationFile", "NoPromotedActionProperties"],
+  "features": [
+    "NoImplicitWith",
+    "TranslationFile",
+    "NoPromotedActionProperties"
+  ],
   "target": "OnPrem",
   "url": "https://github.com/sta-ko-je-reko-ja-sam-reko/commerce-connector-bc",
   "contextSensitiveHelpUrl": "https://github.com/sta-ko-je-reko-ja-sam-reko/commerce-connector-bc",

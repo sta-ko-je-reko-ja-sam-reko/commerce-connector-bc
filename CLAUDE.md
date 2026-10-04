@@ -1,6 +1,6 @@
 # commerce-connector-bc
 
-AL extension turning Business Central into a commerce back end. Affix `CMC`, object id range **70000–73999** (a future test app gets **74000–74999**; this is the app's block in the PTE range shared by all the owner's apps, which must install side by side, so never use ids outside it — registry: bc-dev-templates), target application **27.0.0.0**, runtime **16.0**.
+AL extension turning Business Central into a commerce back end. Affix `CMC`, object id range **70000–73999** (the test app has **74000–74999**; this is the app's block in the PTE range shared by all the owner's apps, which must install side by side, so never use ids outside it — registry: bc-dev-templates), target application **27.0.0.0**, runtime **16.0**.
 
 ## Orientation
 
@@ -12,10 +12,19 @@ AL extension turning Business Central into a commerce back end. Affix `CMC`, obj
 ## Working here
 
 ```bash
-node scripts/check-al-conventions.mjs     # seconds; run before every commit
+node scripts/check-al-conventions.mjs     # seconds; checks app/ and test/; run before every commit
 ```
 
-The real compile runs in CI against BC 27 artifacts. Locally, use the AL Language extension with `AL: Download Symbols`; the ruleset path in `app/.vscode/settings.json` expects the shared conventions wired in at `.bc-conventions/`, which is not vendored here.
+```powershell
+powershell -ExecutionPolicy Bypass -File tools\build.ps1            # app + test, all four analyzers, zero warnings
+powershell -ExecutionPolicy Bypass -File tools\test.ps1             # publish both to the dev container, run every test
+```
+
+CI compiles the app and the test app against BC 27 artifacts. `tools/build.ps1` compiles locally against the BC artifact cache with CodeCop, UICop, AppSourceCop and PerTenantExtensionCop, and fails on any warning. `tools/test.ps1` publishes both packages through the dev endpoint of the container and writes `.output/TestResults.xml`. The ruleset path in `app/.vscode/settings.json` and `test/.vscode/settings.json`, and the build script, expect the shared conventions wired in at `.bc-conventions/` (gitignored), which is not vendored here.
+
+## Tests
+
+The test app in `test/` (ids **74000–74999**, namespace `CommerceConnector.Test`) has one codeunit per feature: `…Tests` for unit tests, `…Integration` for tests that need the database and the base application. Unit tests inject fakes (`CMC Fake …` codeunits implementing the app's interfaces) through `Define()` or the service locator; `CMC Test Library` holds the shared setup. Because there are no inline comments, each test states its Given/When/Then in its `///` summary. The service locator is single instance, so a test that injects into it calls `RestoreDefaultImplementations()` before and after, or the fake outlives the test.
 
 ## AL conventions
 

@@ -9,17 +9,26 @@
  * Every rule here corresponds to a documented standard, and each failure names it.
  * No dependencies: it runs on a bare Node.
  */
-import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, basename, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
-const appRoot = join(repoRoot, 'app');
-const srcRoot = join(appRoot, 'src');
 
-const appJson = JSON.parse(readFileSync(join(appRoot, 'app.json'), 'utf8'));
-const affixes = JSON.parse(readFileSync(join(appRoot, 'AppSourceCop.json'), 'utf8')).mandatoryAffixes ?? [];
-const ranges = appJson.idRanges ?? [];
+/*
+ * Each project is checked against its own manifest: the test app has its own id range, but shares the
+ * affix list and the object namespace graph with the app it depends on, so references and missing
+ * imports are resolved across both.
+ */
+const projects = ['app', 'test']
+  .map((name) => join(repoRoot, name))
+  .filter((root) => existsSync(join(root, 'app.json')) && existsSync(join(root, 'src')))
+  .map((root) => ({
+    root,
+    ranges: JSON.parse(readFileSync(join(root, 'app.json'), 'utf8')).idRanges ?? [],
+    affixes: JSON.parse(readFileSync(join(root, 'AppSourceCop.json'), 'utf8')).mandatoryAffixes ?? [],
+  }));
+const affixes = projects[0].affixes;
 
 const FILE_SUFFIX = {
   table: 'Table', tableextension: 'TableExt', page: 'Page', pageextension: 'PageExt',
@@ -53,9 +62,10 @@ const declaringNamespace = new Map();
 const fileFacts = new Map();
 const declaredObjects = new Set();
 const referencedObjects = new Map();
-const files = walk(srcRoot);
+const files = projects.flatMap((project) => walk(join(project.root, 'src')).map((file) => ({ file, project })));
 
-for (const file of files) {
+for (const { file, project } of files) {
+  const { ranges } = project;
   const source = readFileSync(file, 'utf8');
   const name = basename(file);
   const lines = source.split(/\r?\n/);
@@ -106,7 +116,7 @@ for (const file of files) {
     references: new Set([...source.matchAll(/"((?:CMC) [^"]+)"/g)].map((m) => m[1])),
   });
 
-  if (!affixes.some((affix) => objectName.startsWith(`${affix} `))) {
+  if (!project.affixes.some((affix) => objectName.startsWith(`${affix} `))) {
     fail(file, 'affix', `object name "${objectName}" does not start with a mandatory affix`);
   }
 
@@ -118,7 +128,7 @@ for (const file of files) {
   if (id) {
     const numeric = Number(id);
     if (!ranges.some((r) => numeric >= r.from && numeric <= r.to)) {
-      fail(file, 'id-range', `id ${id} is outside the ranges declared in app.json`);
+      fail(file, 'id-range', `id ${id} is outside the ranges declared in ${relative(repoRoot, join(project.root, 'app.json'))}`);
     }
     const key = `${type} ${id}`;
     if (idsSeen.has(key)) {
@@ -130,7 +140,7 @@ for (const file of files) {
     fail(file, 'id-missing', `${type} "${objectName}" has no object id`);
   }
 
-  const affix = affixes.find((a) => objectName.startsWith(`${a} `));
+  const affix = project.affixes.find((a) => objectName.startsWith(`${a} `));
   const stripped = affix ? objectName.slice(affix.length + 1) : objectName;
   const expected = `${stripped.replace(/[^A-Za-z0-9]/g, '')}.${FILE_SUFFIX[type]}.al`;
   if (name !== expected) {
@@ -169,8 +179,8 @@ for (const [file, facts] of fileFacts) {
   }
 }
 
-console.log(`Checked ${files.length} AL files against ${affixes.join(', ')} and id range `
-  + ranges.map((r) => `${r.from}-${r.to}`).join(', '));
+console.log(`Checked ${files.length} AL files against ${affixes.join(', ')} and id ranges `
+  + projects.map((p) => `${relative(repoRoot, p.root)} ${p.ranges.map((r) => `${r.from}-${r.to}`).join(', ')}`).join('; '));
 
 if (failures.length > 0) {
   console.error(`\n${failures.length} convention problem(s):`);

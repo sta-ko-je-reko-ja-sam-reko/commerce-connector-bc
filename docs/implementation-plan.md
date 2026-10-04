@@ -26,7 +26,7 @@ Business Central stays the system of record for money, stock and orders. This ex
 
 **Price list delta.** Cursor-friendly feed over the Price List model, ordered so the same keyset predicate works.
 
-**Test app.** `test/` has an `AppSourceCop.json` so file-name analysis behaves, but no `app.json` and no codeunits. It needs its own manifest depending on this app plus the Microsoft test libraries, and unit tests that inject a fake through `Define()` so nothing touches the database.
+**Test app.** Delivered: `test/` holds unit tests that inject fakes through `Define()` and the service locator, and integration tests over the order intake, the outbox, the operator list and the delta query. `tools/build.ps1` compiles both projects with all four analyzers; `tools/test.ps1` runs the suite in a container. Running it in CI still needs a service tier the hosted runners cannot provide.
 
 ## Phase 2 — pricing, availability, credit
 

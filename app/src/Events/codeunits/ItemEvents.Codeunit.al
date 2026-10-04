@@ -36,7 +36,7 @@ codeunit 70021 "CMC Item Events"
     var
         ServiceLocator: Codeunit "CMC Service Locator";
     begin
-        ServiceLocator.Reactions().OnItemCategoryChanged(Rec.Code, Rec.SystemId, ServiceLocator.CreatedChangeType());
+        ServiceLocator.Reactions().OnItemCategoryChanged(Rec, ServiceLocator.CreatedChangeType());
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Item Category", OnAfterModifyEvent, '', true, true)]
@@ -44,7 +44,7 @@ codeunit 70021 "CMC Item Events"
     var
         ServiceLocator: Codeunit "CMC Service Locator";
     begin
-        ServiceLocator.Reactions().OnItemCategoryChanged(Rec.Code, Rec.SystemId, ServiceLocator.UpdatedChangeType());
+        ServiceLocator.Reactions().OnItemCategoryChanged(Rec, ServiceLocator.UpdatedChangeType());
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Item Category", OnAfterDeleteEvent, '', true, true)]
@@ -52,6 +52,6 @@ codeunit 70021 "CMC Item Events"
     var
         ServiceLocator: Codeunit "CMC Service Locator";
     begin
-        ServiceLocator.Reactions().OnItemCategoryChanged(Rec.Code, Rec.SystemId, ServiceLocator.DeletedChangeType());
+        ServiceLocator.Reactions().OnItemCategoryChanged(Rec, ServiceLocator.DeletedChangeType());
     end;
 }
