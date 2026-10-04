@@ -2,6 +2,7 @@ namespace CommerceConnector.Test;
 
 using CommerceConnector.General;
 using CommerceConnector.Orders;
+using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Sales.Document;
 using System.TestLibraries.Utilities;
@@ -318,6 +319,109 @@ codeunit 74005 "CMC Order Intake Integration"
         OrderStaging.SetRange(Status, OrderStaging.Status::Pending);
         OrderStaging.SetRange(Attempts, 0);
         Assert.AreEqual(1, OrderStaging.Count(), 'Orders left for the next run');
+    end;
+
+    /// <summary>
+    /// Given a staged order with a default unit of measure and a line without one, when it is processed, then the
+    /// sales line is in the header's default unit.
+    /// </summary>
+    [Test]
+    procedure LineWithoutUnitTakesHeaderDefault()
+    var
+        OrderStaging: Record "CMC Order Staging";
+        OrderIntake: Codeunit "CMC Order Intake";
+        ItemNo: Code[20];
+        BoxCode: Code[10];
+    begin
+        Initialize();
+        ItemNo := TestLibrary.CreateItemNo(10);
+        BoxCode := TestLibrary.AddItemUnitOfMeasure(ItemNo, 6);
+        TestLibrary.CreateStagedOrder(OrderStaging, TestLibrary.CreateCustomerNo(), Enum::"CMC Commerce Document Type"::Order);
+        OrderStaging."Default Unit of Measure" := BoxCode;
+        OrderStaging.Modify();
+        TestLibrary.AddStagedLine(OrderStaging, 1, ItemNo, 1, 0);
+
+        Assert.IsTrue(OrderIntake.ProcessOne(OrderStaging), 'ProcessOne must report success');
+
+        Assert.AreEqual(BoxCode, CreatedLineUnitOfMeasure(OrderStaging), 'Unit of Measure Code');
+    end;
+
+    /// <summary>
+    /// Given a staged order with a default unit of measure and a line carrying its own unit, when it is
+    /// processed, then the line's unit wins.
+    /// </summary>
+    [Test]
+    procedure LineUnitWinsOverHeaderDefault()
+    var
+        Item: Record Item;
+        OrderStaging: Record "CMC Order Staging";
+        OrderIntake: Codeunit "CMC Order Intake";
+    begin
+        Initialize();
+        Item.Get(TestLibrary.CreateItemNo(10));
+        TestLibrary.CreateStagedOrder(OrderStaging, TestLibrary.CreateCustomerNo(), Enum::"CMC Commerce Document Type"::Order);
+        OrderStaging."Default Unit of Measure" := TestLibrary.AddItemUnitOfMeasure(Item."No.", 6);
+        OrderStaging.Modify();
+        TestLibrary.AddStagedLine(OrderStaging, 1, Item."No.", 1, 0);
+        TestLibrary.SetStagedLineUnitOfMeasure(OrderStaging, 1, Item."Base Unit of Measure");
+
+        Assert.IsTrue(OrderIntake.ProcessOne(OrderStaging), 'ProcessOne must report success');
+
+        Assert.AreEqual(Item."Base Unit of Measure", CreatedLineUnitOfMeasure(OrderStaging), 'Unit of Measure Code');
+    end;
+
+    /// <summary>
+    /// Given no unit of measure on the line or the header and an item with a sales unit, when the order is
+    /// processed, then the sales line is in the item's sales unit.
+    /// </summary>
+    [Test]
+    procedure NoUnitAnywhereUsesItemSalesUnit()
+    var
+        OrderStaging: Record "CMC Order Staging";
+        OrderIntake: Codeunit "CMC Order Intake";
+        ItemNo: Code[20];
+        BoxCode: Code[10];
+    begin
+        Initialize();
+        ItemNo := TestLibrary.CreateItemNo(10);
+        BoxCode := TestLibrary.AddItemUnitOfMeasure(ItemNo, 6);
+        TestLibrary.SetItemSalesUnitOfMeasure(ItemNo, BoxCode);
+        TestLibrary.CreateStagedOrder(OrderStaging, TestLibrary.CreateCustomerNo(), Enum::"CMC Commerce Document Type"::Order);
+        TestLibrary.AddStagedLine(OrderStaging, 1, ItemNo, 1, 0);
+
+        Assert.IsTrue(OrderIntake.ProcessOne(OrderStaging), 'ProcessOne must report success');
+
+        Assert.AreEqual(BoxCode, CreatedLineUnitOfMeasure(OrderStaging), 'Unit of Measure Code');
+    end;
+
+    /// <summary>
+    /// Given no unit of measure on the line, the header or the item's sales unit, when the order is processed,
+    /// then the sales line is in the item's base unit.
+    /// </summary>
+    [Test]
+    procedure NoUnitAnywhereUsesItemBaseUnit()
+    var
+        Item: Record Item;
+        OrderStaging: Record "CMC Order Staging";
+        OrderIntake: Codeunit "CMC Order Intake";
+    begin
+        Initialize();
+        Item.Get(TestLibrary.CreateItemNo(10));
+        TestLibrary.SetItemSalesUnitOfMeasure(Item."No.", '');
+        TestLibrary.CreateStagedOrder(OrderStaging, TestLibrary.CreateCustomerNo(), Enum::"CMC Commerce Document Type"::Order);
+        TestLibrary.AddStagedLine(OrderStaging, 1, Item."No.", 1, 0);
+
+        Assert.IsTrue(OrderIntake.ProcessOne(OrderStaging), 'ProcessOne must report success');
+
+        Assert.AreEqual(Item."Base Unit of Measure", CreatedLineUnitOfMeasure(OrderStaging), 'Unit of Measure Code');
+    end;
+
+    local procedure CreatedLineUnitOfMeasure(var OrderStaging: Record "CMC Order Staging"): Code[10]
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        SalesLine.Get(SalesLine."Document Type"::Order, OrderStaging."Created Document No.", 10000);
+        exit(SalesLine."Unit of Measure Code");
     end;
 
     local procedure Initialize()

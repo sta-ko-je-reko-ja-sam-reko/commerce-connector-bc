@@ -130,6 +130,48 @@ codeunit 74000 "CMC Test Library"
     end;
 
     /// <summary>
+    /// Adds an alternative unit of measure to an item.
+    /// </summary>
+    /// <param name="ItemNo">The item.</param>
+    /// <param name="QtyPerUnitOfMeasure">How many base units the new unit holds.</param>
+    procedure AddItemUnitOfMeasure(ItemNo: Code[20]; QtyPerUnitOfMeasure: Decimal): Code[10]
+    var
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+    begin
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, ItemNo, QtyPerUnitOfMeasure);
+        exit(ItemUnitOfMeasure.Code);
+    end;
+
+    /// <summary>
+    /// Sets the sales unit of measure of an item.
+    /// </summary>
+    /// <param name="ItemNo">The item.</param>
+    /// <param name="UnitOfMeasureCode">The unit sales documents default to.</param>
+    procedure SetItemSalesUnitOfMeasure(ItemNo: Code[20]; UnitOfMeasureCode: Code[10])
+    var
+        Item: Record Item;
+    begin
+        Item.Get(ItemNo);
+        Item.Validate("Sales Unit of Measure", UnitOfMeasureCode);
+        Item.Modify(true);
+    end;
+
+    /// <summary>
+    /// Sets the unit of measure on a staged line.
+    /// </summary>
+    /// <param name="OrderStaging">The staged order.</param>
+    /// <param name="LineNo">The staging line number.</param>
+    /// <param name="UnitOfMeasureCode">The unit the line's quantity is expressed in.</param>
+    procedure SetStagedLineUnitOfMeasure(var OrderStaging: Record "CMC Order Staging"; LineNo: Integer; UnitOfMeasureCode: Code[10])
+    var
+        OrderStagingLine: Record "CMC Order Staging Line";
+    begin
+        OrderStagingLine.Get(OrderStaging."Entry No.", LineNo);
+        OrderStagingLine."Unit of Measure Code" := UnitOfMeasureCode;
+        OrderStagingLine.Modify();
+    end;
+
+    /// <summary>
     /// Returns an idempotency key no other staged order carries.
     /// </summary>
     procedure NewIdempotencyKey(): Code[64]

@@ -31,6 +31,7 @@ page 70011 "CMC API Order"
                 field(externalReference; Rec."External Reference") { Caption = 'External Reference'; }
                 field(requestedDeliveryDate; Rec."Requested Delivery Date") { Caption = 'Requested Delivery Date'; }
                 field(locationCode; Rec."Location Code") { Caption = 'Location Code'; }
+                field(defaultUnitOfMeasure; Rec."Default Unit of Measure") { Caption = 'Default Unit of Measure'; }
                 field(correlationId; Rec."Correlation Id") { Caption = 'Correlation Id'; }
                 field(status; Rec.Status) { Caption = 'Status'; Editable = false; }
                 field(attempts; Rec.Attempts) { Caption = 'Attempts'; Editable = false; }

@@ -68,7 +68,7 @@ Interfaces carry no object ID: `CMC ICommerceSetup`, `CMC IOrderStaging`, `CMC I
 |---|---|---|
 | Catalogue delta | `query "CMC API Item Delta"` | OData filter on `changedAt`, order by `changedAt,systemId`, `$top`. |
 | Category tree | `page "CMC API Category"` | Read-only, whole tree. |
-| Order submission | `page "CMC API Order"` + `page "CMC API Order Line"` | Header then lines. A duplicate idempotency key fails on the unique index. |
+| Order submission | `page "CMC API Order"` + `page "CMC API Order Line"` | Header then lines. A duplicate idempotency key fails on the unique index. A line without `unitOfMeasureCode` takes the header's `defaultUnitOfMeasure`. |
 | Change collection | `page "CMC API Change Outbox"` | Collected, then marked completed by the caller. |
 | Implementation override | `CMC Service Locator.OnResolveReactions` / `OnResolveOrderIntake` | The only publishers in the app, and only to substitute an implementation. |
 
@@ -116,6 +116,8 @@ Three more came out of writing the test app:
 - **The queue could lose its place.** `ProcessPending` handed its loop variable to `ProcessOne`, which changes `Status` and `Next Retry At` — the very key the loop iterates — so the following `Next()` could skip rows or stop early. Each due row is now processed through a copy.
 - **Temporary records reached the outbox.** Table events fire for temporary records too, so any buffer insert of an `Item` or `Item Category` was recorded as a catalogue change. The reactions now ignore temporary records; `CMC IReactions.OnItemCategoryChanged` takes the record, like `OnItemChanged`, so it can tell.
 
+A fourth gap was fixed afterwards: `Default Unit of Measure` on the staging header was never read, although its ToolTip promised it. A staged line without a unit now gets the header default; when both are blank the sales line keeps the item's sales unit (or base unit), which standard validation of the item number assigns. The field is exposed on `CMC API Order` as `defaultUnitOfMeasure`.
+
 Compiling with the AppSourceCop analyzer also required `privacyStatement`, `EULA`, `help` and `logo` in `app.json`.
 
 ## Known Limitations
@@ -124,4 +126,3 @@ Compiling with the AppSourceCop analyzer also required `privacyStatement`, `EULA
 - **Credit standing is not yet exposed.** Checkout blocks without it, by the same ADR.
 - **No stock feed yet.** The band is currently derived by the platform from projected data rather than published by Business Central.
 - **Tests do not run in CI.** CI compiles the app only: the test app targets the BC 29 dev container, and running it needs a service tier. `tools/build.ps1` compiles it and `tools/test.ps1` runs it against the container.
-- **`Default Unit of Measure` on the staging header is not applied.** Its ToolTip says lines without a unit use it, but `CMC Order Intake` never reads it and the API page does not expose it; a line without a unit gets the item's sales unit.

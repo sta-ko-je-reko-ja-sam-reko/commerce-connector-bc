@@ -138,11 +138,11 @@ codeunit 70013 "CMC Order Intake" implements "CMC IOrderIntake"
             Error(NoLinesErr, OrderStaging."Platform Order Id");
 
         repeat
-            CreateLine(StagingLine, SalesHeader);
+            CreateLine(StagingLine, SalesHeader, OrderStaging."Default Unit of Measure");
         until StagingLine.Next() = 0;
     end;
 
-    local procedure CreateLine(var StagingLine: Record "CMC Order Staging Line"; var SalesHeader: Record "Sales Header")
+    local procedure CreateLine(var StagingLine: Record "CMC Order Staging Line"; var SalesHeader: Record "Sales Header"; DefaultUnitOfMeasure: Code[10])
     var
         SalesLine: Record "Sales Line";
     begin
@@ -160,7 +160,10 @@ codeunit 70013 "CMC Order Intake" implements "CMC IOrderIntake"
         if StagingLine."Location Code" <> '' then
             SalesLine.Validate("Location Code", StagingLine."Location Code");
         if StagingLine."Unit of Measure Code" <> '' then
-            SalesLine.Validate("Unit of Measure Code", StagingLine."Unit of Measure Code");
+            SalesLine.Validate("Unit of Measure Code", StagingLine."Unit of Measure Code")
+        else
+            if DefaultUnitOfMeasure <> '' then
+                SalesLine.Validate("Unit of Measure Code", DefaultUnitOfMeasure);
 
         SalesLine.Validate(Quantity, StagingLine.Quantity);
 
